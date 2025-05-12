@@ -1,5 +1,4 @@
-#include <iostream>
-#include <vector>
+#include "output_formater.hpp"
 
 
 void output_formated(std::string line, int index, int pattern_size){

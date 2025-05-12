@@ -6,6 +6,7 @@
 #include <sstream>
 
 
+
 //TODO implementirati ovo
 bool init_buffer(std::string filename, size_t buffer_size);
 

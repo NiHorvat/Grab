@@ -1,7 +1,5 @@
-#include <iostream>
-#include <vector>
-#include <stack>
-#include "buffer.h"
+
+#include "buffer.hpp"
 
 class Algos
 {

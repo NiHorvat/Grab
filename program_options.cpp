@@ -1,53 +1,94 @@
 #include "program_options.hpp"
 
-std::vector<std::string> arguments;
+const std::string ANSI_COLOR_BLACK = "\x1b[30m";
+const std::string ANSI_COLOR_RED = "\x1b[31m";
+const std::string ANSI_COLOR_GREEN = "\x1b[32m";
+const std::string ANSI_COLOR_YELLOW = "\x1b[33m";
+const std::string ANSI_COLOR_BLUE = "\x1b[34m";
+const std::string ANSI_COLOR_MAGENTA = "\x1b[35m";
+const std::string ANSI_COLOR_CYAN = "\x1b[36m";
+const std::string ANSI_COLOR_WHITE = "\x1b[37m";
 
-struct options
+
+
+
+struct 	
 {
+    std::string expresion = "";
+    std::string filename = "";
     std::string color_code = "";
-    
-};
 
-options *opt;
+}typedef program_options;
 
 
+program_options p_options;
 
-void parse_options(int argc, char *argv[]){
-    arguments.assign(argv + 1, argv + argc);
-    get__all_options();
 
+
+
+std::string _switch_colors(std::string color){
+
+    if(color == "black") return ANSI_COLOR_BLACK;
+    if(color == "red") return ANSI_COLOR_RED;
+    if(color == "green") return ANSI_COLOR_GREEN;
+    if(color == "yellow") return ANSI_COLOR_YELLOW;
+    if(color == "blue") return ANSI_COLOR_BLUE;
+    if(color == "magenta") return ANSI_COLOR_MAGENTA;
+    if(color == "cyan") return ANSI_COLOR_CYAN;
+    if(color == "white") return ANSI_COLOR_WHITE;
+    return "";
 }
 
 
-void get__all_options(){
-    get_color();
-}
+void  _get_color(std::vector<std::string> tokens){
 
-
-void get_color(){
-
-    std::cout << "lele" << std::endl;
-    for(size_t i = 0; i < arguments.size(); i++){
-        if(arguments[i] == "-c" || arguments[i] == "--color"){
-            
-            if(!opt->color_code.empty()){
-                throw std::runtime_error("can't specify -c/--color more than once");
-            }
-            if(i+1 < arguments.size()){
-                opt->color_code = arguments[i+1];
-                return;
+    for(size_t i = 0; i < tokens.size(); i++){
+        if(tokens[i] == "--color" || tokens[i] == "-c"){
+            if(i + 1 < tokens.size()){
+                p_options.color_code = _switch_colors(tokens[i+1]);
+                break;
             }
         }
     }
 }
 
+void _get_filename(std::vector<std::string> tokens){
+
+    p_options.filename = tokens[1]; 
+
+}
+
+void _get_expresion(std::vector<std::string> tokens){
+
+    p_options.expresion = tokens[0]; 
+
+}
+
+
+
+void parse_options(int argc, char *argv[]){
+
+    std::vector<std::string> tokens(argv + 1, argv + argc);
+    _get_expresion(tokens);
+    _get_filename(tokens);
+    _get_color(tokens);
+
+    
+}
 
 
 
 std::string get_color_code(){
+    return p_options.color_code;
+}
 
-    return opt->color_code;
 
+std::string get_expresion(){
+    return p_options.expresion;
+}
+
+std::string get_filename(){
+    return p_options.filename;
 }
 
 

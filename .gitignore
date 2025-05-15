@@ -1,5 +1,6 @@
-.gitignore
-.vsocode
 hamlet.txt
+
+.vscode/
+
 *.o
 grab

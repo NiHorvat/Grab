@@ -14,11 +14,11 @@ int main(int argc, char* argv[]){
     parse_options(argc,argv);
 
 
-    std::string filename = "hamlet.txt";
+    std::string filename = get_filename();
     size_t buffer_size = 1024;
     init_buffer(filename,buffer_size);
 
-    std::string pattern = "audio";
+    std::string pattern = get_expresion();
     int pattern_size = pattern.size();
     init_algos(pattern);
 

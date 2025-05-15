@@ -1,53 +1,54 @@
 #include "program_options.hpp"
 
-namespace
+std::vector<std::string> arguments;
+
+struct options
 {
+    std::string color_code = "";
+    
+};
 
-    static std::vector<std::string_view> _input_files;
-    static std::string_view _color_opening = "";
-    static std::string_view _color_clossing = "";
-
-} // namespace
+options *opt;
 
 
-//TODO nemam pojima
-void program_options::parse(int argc, char *argv[])
-{
-    const std::vector<std::string_view> args(argv + 1, argv + argc);
 
-    for (const auto &arg : args)
-    {
-        if (_input_files.empty())
-        {
-           if(arg == "-c" || "--color"){
-                if(!_color_opening.empty() || !_color_clossing.empty()){
-                    throw std::runtime_error("cannot use -c/--color parametar twice");
-                }
-                //ovdje treba dodati neš
-           }
+void parse_options(int argc, char *argv[]){
+    arguments.assign(argv + 1, argv + argc);
+    get__all_options();
+
+}
+
+
+void get__all_options(){
+    get_color();
+}
+
+
+void get_color(){
+
+    std::cout << "lele" << std::endl;
+    for(size_t i = 0; i < arguments.size(); i++){
+        if(arguments[i] == "-c" || arguments[i] == "--color"){
+            
+            if(!opt->color_code.empty()){
+                throw std::runtime_error("can't specify -c/--color more than once");
+            }
+            if(i+1 < arguments.size()){
+                opt->color_code = arguments[i+1];
+                return;
+            }
         }
-
-        if (!std::filesystem::exists(arg))
-        {
-            throw std::runtime_error(std::string("dog: ") + std::string(arg) + ": No such file or directory");
-        }
-        _input_files.push_back(arg);
     }
 }
 
-const std::vector<std::string_view> &
-program_options::input_files()
-{
-    return _input_files;
-}
 
 
-std::string_view color_opening(){
-    return _color_opening;
+
+std::string get_color_code(){
+
+    return opt->color_code;
+
 }
 
-std::string_view color_closing(){
-    return _color_clossing;
-}
 
 

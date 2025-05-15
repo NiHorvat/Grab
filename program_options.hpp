@@ -2,13 +2,12 @@
 #include <vector>
 #include <filesystem>
 #include <stdexcept>
+#include <iostream>
 
-namespace program_options {
+void parse_options(int argc, char *argv[]);
 
-void parse(int argc, char* argv[]);
+std::string get_color_code();
 
-const std::vector<std::string_view>& input_files();
-bool                                 show_ends();
-bool                                 show_line_numbers();
+void get__all_options();
 
-};  // namespace program_options
+void get_color();

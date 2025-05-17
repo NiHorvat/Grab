@@ -7,8 +7,10 @@ class Algos
 private:
     std::string pattern;
 
-    int rabin_karp(std::string line, int q)
+    std::vector<int> rabin_karp(std::string line, int q)
     {
+
+        std::vector<int> output;
 
         int M = this->pattern.size();
         int N = line.size();
@@ -50,7 +52,7 @@ private:
                 // if p == t and pat[0...M-1] = txt[i, i+1,
                 // ...i+M-1]
 
-                return i;
+                output.push_back(i);
             }
 
             // Calculate hash value for next window of text:
@@ -65,7 +67,7 @@ private:
                     t = (t + q);
             }
         }
-        return -1;
+        return output;
     }
 
 public:
@@ -74,7 +76,7 @@ public:
         this->pattern = pattern;
     }
 
-    int check_line(std::string line){
+    std::vector<int> check_line(std::string line){
         return rabin_karp(line,INT32_MAX);
     }
 
@@ -97,11 +99,10 @@ void init_algos(std::string pattern){
         std::cerr << "void init_algos(std::string pattern)" << e.what() << '\n';
         exit(-1);
     }
-    
 
 }
 
-int check_line(std::string line){
+std::vector<int> check_line(std::string line){
 
     try
     {
@@ -112,5 +113,31 @@ int check_line(std::string line){
         std::cerr << "int check_line(std::string line)" << e.what() << '\n';
         exit(-1);
     }
-    
+}
+
+
+
+
+
+
+std::vector<std::pair<int,std::pair<int,std::string>>> check_file(){
+
+
+    std::vector<std::pair<int,std::pair<int,std::string>>> output;
+
+    std::string line;
+    std::vector<int> indexes;
+    int line_number = 1;
+    while(get_next_line(line)){
+        indexes = check_line(line);
+        for(const auto &i : indexes){
+
+            output.push_back(std::pair<int,std::pair<int,std::string>>(line_number,std::pair<int,std::string>(i,line)));
+        }
+
+        line_number++;
+    }
+
+    return output;
+
 }

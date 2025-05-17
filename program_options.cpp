@@ -17,6 +17,7 @@ struct
     std::string expresion = "";
     std::string filename = "";
     std::string color_code = "";
+    bool no_line_number = false;
 
 }typedef program_options;
 
@@ -63,15 +64,56 @@ void _get_expresion(std::vector<std::string> tokens){
     p_options.expresion = tokens[0]; 
 
 }
+void _get_no_line_number(std::vector<std::string> tokens){
+
+    for(const auto &token : tokens){
+        if(token == "-nl" || token == "--no-line-number"){
+            p_options.no_line_number = true;
+            break;
+        }
+    }
+
+
+}
+
+void _print_help(){
+    std::cout << "This is the help page for GRAB tool" << std::endl;
+    std::cout << "What is the GRAB tool : it is a copy of grep, with less features but created souly by His Majesty Nikola Horvat\n" << std::endl;
+    std::cout << "How to use this tool?" << std::endl;
+    std::cout << "USE PATERN:\n    ./grab {pattern} {filename} {flag_1} {value_1} {flag_2}...\n" << std::endl;        
+    std::cout << "replace things in {} with the actual information\n\n\n" << std::endl;
+
+    std::cout << "SUPPORTED FLAGS\n" << std::endl;
+    std::cout << std::setw(20) << " -c/--color {color_name}" << std::setw(100) << "supported colors : black,red,green,yellow,blue,magenta,cyan,white" << std::endl;
+    std::cout << std::setw(20) << " -nl/--no-line-numbers" << std::setw(100) << "bool flag indicating a want for no line numbers in output, default false" << std::endl;
+
+
+}
+
+
+
+//this function overflows everything 
+//and then exits the program, bc if you call help ykikyk
+void _get_help(std::vector<std::string> tokens){
+
+    if(tokens[0] == "-h" || tokens[0] == "--help"){
+        _print_help();
+        exit(0);
+    }
+
+}
+
 
 
 
 void parse_options(int argc, char *argv[]){
 
     std::vector<std::string> tokens(argv + 1, argv + argc);
+    _get_help(tokens);
     _get_expresion(tokens);
     _get_filename(tokens);
     _get_color(tokens);
+    _get_no_line_number(tokens);
 
     
 }
@@ -91,5 +133,7 @@ std::string get_filename(){
     return p_options.filename;
 }
 
-
+bool get_no_line_number(){
+    return p_options.no_line_number;
+}
 

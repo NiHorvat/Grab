@@ -3,6 +3,7 @@
 #include <stack>
 
 
+
 void init_algos(std::string pattern);
 
-int check_line(std::string line);
+std::vector<std::pair<int,std::pair<int,std::string>>> check_file();

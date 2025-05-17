@@ -8,7 +8,6 @@
 #include "program_options.hpp"
 
 
-
 int main(int argc, char* argv[]){
 
     parse_options(argc,argv);
@@ -22,15 +21,16 @@ int main(int argc, char* argv[]){
     int pattern_size = pattern.size();
     init_algos(pattern);
 
-    std::string line;
-    int index = -1;
-    while(get_next_line(line)){
-        index = check_line(line);
-        if(index > 0){
-            output_formated(line,index,pattern_size);       
-        }
+    const auto output = check_file();
 
+    for(const auto &el : output){
+        if(!get_no_line_number()){
+            std::cout << el.first << "          ";
+        }
+        output_formated(el.second.second,el.second.first,pattern_size);
+        
     }
+
 
 
     return 0;

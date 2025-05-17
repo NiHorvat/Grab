@@ -9,3 +9,4 @@ void parse_options(int argc, char *argv[]);
 std::string get_expresion();
 std::string get_filename();
 std::string get_color_code();
+bool get_no_line_number();

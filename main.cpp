@@ -10,6 +10,7 @@
 
 int main(int argc, char* argv[]){
 
+
     parse_options(argc,argv);
 
 
@@ -32,7 +33,5 @@ int main(int argc, char* argv[]){
     }
 
 
-
     return 0;
-
 }

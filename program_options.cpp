@@ -9,131 +9,261 @@ const std::string ANSI_COLOR_MAGENTA = "\x1b[35m";
 const std::string ANSI_COLOR_CYAN = "\x1b[36m";
 const std::string ANSI_COLOR_WHITE = "\x1b[37m";
 
+const std::string ANSI_BOLD = "\x1b[1m";
+const std::string ANSI_UNDERLINE = "\x1b[4m";
+const std::string ANSI_RESET = "\x1b[0m";
 
-
-
-struct 	
+struct
 {
     std::string expresion = "";
-    std::string filename = "";
-    std::string color_code = "";
+    int file_count = 1;
+    std::vector<std::string> filenames;
+    std::string color_code = ANSI_COLOR_RED;
     bool no_line_number = false;
 
-}typedef program_options;
-
+} typedef program_options;
 
 program_options p_options;
 
+std::string _switch_colors(std::string color)
+{
 
-
-
-std::string _switch_colors(std::string color){
-
-    if(color == "black") return ANSI_COLOR_BLACK;
-    if(color == "red") return ANSI_COLOR_RED;
-    if(color == "green") return ANSI_COLOR_GREEN;
-    if(color == "yellow") return ANSI_COLOR_YELLOW;
-    if(color == "blue") return ANSI_COLOR_BLUE;
-    if(color == "magenta") return ANSI_COLOR_MAGENTA;
-    if(color == "cyan") return ANSI_COLOR_CYAN;
-    if(color == "white") return ANSI_COLOR_WHITE;
+    if (color == "black")
+        return ANSI_COLOR_BLACK;
+    if (color == "red")
+        return ANSI_COLOR_RED;
+    if (color == "green")
+        return ANSI_COLOR_GREEN;
+    if (color == "yellow")
+        return ANSI_COLOR_YELLOW;
+    if (color == "blue")
+        return ANSI_COLOR_BLUE;
+    if (color == "magenta")
+        return ANSI_COLOR_MAGENTA;
+    if (color == "cyan")
+        return ANSI_COLOR_CYAN;
+    if (color == "white")
+        return ANSI_COLOR_WHITE;
     return "";
 }
 
+void _get_color(std::vector<std::string> tokens)
+{
 
-void  _get_color(std::vector<std::string> tokens){
-
-    for(size_t i = 0; i < tokens.size(); i++){
-        if(tokens[i] == "--color" || tokens[i] == "-c"){
-            if(i + 1 < tokens.size()){
-                p_options.color_code = _switch_colors(tokens[i+1]);
-                break;
+    try
+    {
+        for (size_t i = 0; i < tokens.size(); i++)
+        {
+            if (tokens[i] == "--color" || tokens[i] == "-c")
+            {
+                if (i + 1 < tokens.size())
+                {
+                    p_options.color_code = _switch_colors(tokens[i + 1]);
+                    break;
+                }
+                else{
+                    throw std::runtime_error("no -c/--color specified");
+                }
             }
         }
     }
+    catch (const std::exception &e)
+    {
+        std::cerr << "void _get_color(std::vector<std::string> tokens)" << e.what() << '\n';
+    }
 }
 
-void _get_filename(std::vector<std::string> tokens){
+void _get_filenames(std::vector<std::string> tokens)
+{
 
-    p_options.filename = tokens[1]; 
+    try
+    {
+        int shift = 1;
+        if(p_options.file_count != 1)  shift = 3;
 
+        for(int i = 0; i < p_options.file_count; i++){
+
+            if (tokens[shift+i] == "")
+                throw std::runtime_error("filename == \"\"");
+            p_options.filenames.push_back(tokens[shift + i]);
+        }
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "void _get_filename(std::vector<std::string> tokens)" << e.what() << '\n';
+        exit(-1);
+    }
 }
 
-void _get_expresion(std::vector<std::string> tokens){
+void _get_multifile(std::vector<std::string> tokens)
+{
 
-    p_options.expresion = tokens[0]; 
-
+    try
+    {
+        for (size_t i = 0; i < tokens.size(); i++)
+        {
+            if (tokens[i] == "-fc" || tokens[i] == "--file-count")
+            {
+                if (i + 1 < tokens.size())
+                {
+                    p_options.file_count = stoi(tokens[i + 1]);
+                    if (p_options.file_count <= 0)
+                        throw std::runtime_error("-fc/--file-count can't be lower than 1");
+                    break;
+                }
+                else
+                {
+                    throw std::runtime_error("no -fc/--file-count specified");
+                }
+            }
+        }
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "void _get_multifile(std::vector<std::string> tokens) " << e.what() << '\n';
+    }
 }
-void _get_no_line_number(std::vector<std::string> tokens){
 
-    for(const auto &token : tokens){
-        if(token == "-nl" || token == "--no-line-number"){
+void _get_expresion(std::vector<std::string> tokens)
+{
+
+    try
+    {
+        p_options.expresion = tokens[0];
+        if (p_options.expresion == "")
+            throw std::runtime_error("pattern == \"\"");
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "void _get_expresion(std::vector<std::string> tokens)" << e.what() << '\n';
+        exit(-1);
+    }
+}
+void _get_no_line_number(std::vector<std::string> tokens)
+{
+
+    for (const auto &token : tokens)
+    {
+        if (token == "-nl" || token == "--no-line-number")
+        {
             p_options.no_line_number = true;
             break;
         }
     }
-
-
 }
 
-void _print_help(){
-    std::cout << "This is the help page for GRAB tool" << std::endl;
-    std::cout << "What is the GRAB tool : it is a copy of grep, with less features but created souly by His Majesty Nikola Horvat\n" << std::endl;
-    std::cout << "How to use this tool?" << std::endl;
-    std::cout << "USE PATERN:\n    ./grab {pattern} {filename} {flag_1} {value_1} {flag_2}...\n" << std::endl;        
-    std::cout << "replace things in {} with the actual information\n\n\n" << std::endl;
+void _print_help()
+{
+    std::cout << "\n"
+              << ANSI_BOLD << ANSI_COLOR_CYAN << "GRAB TOOL HELP" << ANSI_RESET << "\n"
+              << std::endl;
 
-    std::cout << "SUPPORTED FLAGS\n" << std::endl;
-    std::cout << std::setw(20) << " -c/--color {color_name}" << std::setw(100) << "supported colors : black,red,green,yellow,blue,magenta,cyan,white" << std::endl;
-    std::cout << std::setw(20) << " -nl/--no-line-numbers" << std::setw(100) << "bool flag indicating a want for no line numbers in output, default false" << std::endl;
+    std::cout << ANSI_BOLD << "Description:" << ANSI_RESET << std::endl;
+    std::cout << "  A grep-like tool created by " << ANSI_BOLD << "Nikola Horvat" << ANSI_RESET << std::endl;
+    std::cout << "  Simplified version with essential functionality\n"
+              << std::endl;
 
+    std::cout << ANSI_BOLD << "Usage Pattern:" << ANSI_RESET << std::endl;
+    std::cout << "  " << ANSI_COLOR_GREEN << "./grab {pattern} {filename} [options]" << ANSI_RESET << "\n"
+              << std::endl;
 
+    std::cout << ANSI_BOLD << "Options:" << ANSI_RESET << std::endl;
+    std::cout << ANSI_BOLD << "  -c, --color <color>" << ANSI_RESET << std::endl;
+    std::cout << "      Highlight matches with specified color" << std::endl;
+    std::cout << "      Available colors: ";
+    std::cout << ANSI_COLOR_BLACK << "black" << ANSI_RESET << ", ";
+    std::cout << ANSI_COLOR_RED << "red" << ANSI_RESET << ", ";
+    std::cout << ANSI_COLOR_GREEN << "green" << ANSI_RESET << ", ";
+    std::cout << ANSI_COLOR_YELLOW << "yellow" << ANSI_RESET << ", ";
+    std::cout << ANSI_COLOR_BLUE << "blue" << ANSI_RESET << ", ";
+    std::cout << ANSI_COLOR_MAGENTA << "magenta" << ANSI_RESET << ", ";
+    std::cout << ANSI_COLOR_CYAN << "cyan" << ANSI_RESET << ", ";
+    std::cout << ANSI_COLOR_WHITE << "white" << ANSI_RESET << "\n"
+              << std::endl;
+
+    std::cout << ANSI_BOLD << "  -nl, --no-line-numbers" << ANSI_RESET << std::endl;
+    std::cout << "      Disable line numbers in output (default: enabled)\n"
+              << std::endl;
+
+    std::cout << ANSI_BOLD << "Examples:" << ANSI_RESET << std::endl;
+    std::cout << "  " << ANSI_COLOR_YELLOW << "./grab \"search_term\" file.txt --color red" << ANSI_RESET << std::endl;
+    std::cout << "  " << ANSI_COLOR_YELLOW << "./grab \"pattern\" data.log -c blue --no-line-numbers" << ANSI_RESET << std::endl;
+    std::cout << "  " << ANSI_COLOR_YELLOW << "./grab \"error\" log.txt | less -R" << ANSI_RESET << " (for paging with color)" << std::endl;
 }
 
+// this function overflows everything
+// and then exits the program, bc if you call help ykikyk
+void _get_help(std::vector<std::string> tokens)
+{
 
+    try
+    {
+        if (tokens[0] == "-h" || tokens[0] == "--help")
+        {
+            _print_help();
+            exit(-1);
+        }
+        if (tokens[0] == "")
+            throw std::runtime_error("tokens[0] == \"\"");
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "void _get_help(std::vector<std::string> tokens)" << e.what() << '\n';
+        exit(-1);
+    }
+}
 
-//this function overflows everything 
-//and then exits the program, bc if you call help ykikyk
-void _get_help(std::vector<std::string> tokens){
+void parse_options(int argc, char *argv[])
+{
 
-    if(tokens[0] == "-h" || tokens[0] == "--help"){
-        _print_help();
-        exit(0);
+    std::vector<std::string> tokens;
+
+    try
+    {
+        tokens.assign(argv + 1, argv + argc);
+        if (tokens.size() == 0)
+            throw std::runtime_error("tokens.size() == 0");
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "void parse_options(int argc, char *argv[]) " << e.what() << '\n';
+        exit(-1);
     }
 
-}
-
-
-
-
-void parse_options(int argc, char *argv[]){
-
-    std::vector<std::string> tokens(argv + 1, argv + argc);
-    _get_help(tokens);
-    _get_expresion(tokens);
-    _get_filename(tokens);
-    _get_color(tokens);
-    _get_no_line_number(tokens);
-
+    try
+    {
+        _get_help(tokens);
+        _get_expresion(tokens);
+        _get_multifile(tokens);
+        _get_filenames(tokens);
+        _get_color(tokens);
+        _get_no_line_number(tokens);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << "void parse_options(int argc, char *argv[]) " << e.what() << '\n';
+    }
     
+
+
 }
 
-
-
-std::string get_color_code(){
+std::string get_color_code()
+{
     return p_options.color_code;
 }
 
-
-std::string get_expresion(){
+std::string get_expresion()
+{
     return p_options.expresion;
 }
 
-std::string get_filename(){
-    return p_options.filename;
+std::vector<std::string> get_filenames()
+{
+    return p_options.filenames;
 }
 
-bool get_no_line_number(){
+bool get_no_line_number()
+{
     return p_options.no_line_number;
 }
-

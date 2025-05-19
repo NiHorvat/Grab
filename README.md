@@ -15,5 +15,5 @@ Simplified version with essential functionality.
 # Search without line numbers
 ./grab "pattern" data.log -c blue --no-line-numbers
 
-# Pipe output to less for paging (preserves colors)
-./grab "error" log.txt | less -R
+# Multifile search
+./grab "pattern" -fc/--file-count "file-count" file1.file file2.file

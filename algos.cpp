@@ -79,8 +79,6 @@ public:
 Algos *alg = nullptr;
 
 
-
-
 void init_algos(std::string pattern){
 
     try
@@ -107,9 +105,6 @@ std::vector<int> check_line(std::string line){
         exit(-1);
     }
 }
-
-
-
 
 
 

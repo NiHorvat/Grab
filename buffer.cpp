@@ -71,6 +71,20 @@ class Buffer{
             buffer.resize(this->buffer_size);
         }
 
+
+        void clear(){
+            this->buffer_size = 0;
+            this->filename = "";
+
+
+            this->file.clear();
+            this->iss.clear();
+
+            this->curr_index = 0;
+            this->buffer.clear();
+
+        }
+
 };
 
 Buffer *buff = nullptr;
@@ -114,6 +128,12 @@ bool get_next_line(std::string &line){
         std::cerr << "std::string get_next_chunk()" << e.what() << '\n';
         exit(-1);
     }
+
+}
+
+void buffer_clear(){
+
+    buff->clear();
 
 }
 

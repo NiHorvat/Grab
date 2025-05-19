@@ -16,8 +16,9 @@ const std::string ANSI_RESET = "\x1b[0m";
 struct
 {
     std::string expresion = "";
-    std::string filename = "";
-    std::string color_code = "";
+    int file_count = 1;
+    std::vector<std::string> filenames;
+    std::string color_code = ANSI_COLOR_RED;
     bool no_line_number = false;
 
 } typedef program_options;
@@ -49,32 +50,77 @@ std::string _switch_colors(std::string color)
 void _get_color(std::vector<std::string> tokens)
 {
 
-    for (size_t i = 0; i < tokens.size(); i++)
+    try
     {
-        if (tokens[i] == "--color" || tokens[i] == "-c")
+        for (size_t i = 0; i < tokens.size(); i++)
         {
-            if (i + 1 < tokens.size())
+            if (tokens[i] == "--color" || tokens[i] == "-c")
             {
-                p_options.color_code = _switch_colors(tokens[i + 1]);
-                break;
+                if (i + 1 < tokens.size())
+                {
+                    p_options.color_code = _switch_colors(tokens[i + 1]);
+                    break;
+                }
+                else{
+                    throw std::runtime_error("no -c/--color specified");
+                }
             }
         }
     }
+    catch (const std::exception &e)
+    {
+        std::cerr << "void _get_color(std::vector<std::string> tokens)" << e.what() << '\n';
+    }
 }
 
-void _get_filename(std::vector<std::string> tokens)
+void _get_filenames(std::vector<std::string> tokens)
 {
 
     try
     {
-        p_options.filename = tokens[1];
-        if (p_options.filename == "")
-            throw std::runtime_error("filename == \"\"");
+        int shift = 1;
+        if(p_options.file_count != 1)  shift = 3;
+
+        for(int i = 0; i < p_options.file_count; i++){
+
+            if (tokens[shift+i] == "")
+                throw std::runtime_error("filename == \"\"");
+            p_options.filenames.push_back(tokens[shift + i]);
+        }
     }
     catch (const std::exception &e)
     {
         std::cerr << "void _get_filename(std::vector<std::string> tokens)" << e.what() << '\n';
-        exit(0);
+        exit(-1);
+    }
+}
+
+void _get_multifile(std::vector<std::string> tokens)
+{
+
+    try
+    {
+        for (size_t i = 0; i < tokens.size(); i++)
+        {
+            if (tokens[i] == "-fc" || tokens[i] == "--file-count")
+            {
+                if (i + 1 < tokens.size())
+                {
+                    p_options.file_count = stoi(tokens[i + 1]);
+                    if (p_options.file_count <= 0)
+                        throw std::runtime_error("-fc/--file-count can't be lower than 1");
+                    break;
+                }
+                else
+                {
+                    throw std::runtime_error("no -fc/--file-count specified");
+                }
+            }
+        }
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "void _get_multifile(std::vector<std::string> tokens) " << e.what() << '\n';
     }
 }
 
@@ -90,7 +136,7 @@ void _get_expresion(std::vector<std::string> tokens)
     catch (const std::exception &e)
     {
         std::cerr << "void _get_expresion(std::vector<std::string> tokens)" << e.what() << '\n';
-        exit(0);
+        exit(-1);
     }
 }
 void _get_no_line_number(std::vector<std::string> tokens)
@@ -155,14 +201,15 @@ void _get_help(std::vector<std::string> tokens)
         if (tokens[0] == "-h" || tokens[0] == "--help")
         {
             _print_help();
-            exit(0);
+            exit(-1);
         }
-        if(tokens[0] == "") throw std::runtime_error("tokens[0] == \"\"");
+        if (tokens[0] == "")
+            throw std::runtime_error("tokens[0] == \"\"");
     }
     catch (const std::exception &e)
     {
         std::cerr << "void _get_help(std::vector<std::string> tokens)" << e.what() << '\n';
-        exit(0);
+        exit(-1);
     }
 }
 
@@ -174,21 +221,30 @@ void parse_options(int argc, char *argv[])
     try
     {
         tokens.assign(argv + 1, argv + argc);
-        if(tokens.size() == 0) throw std::runtime_error("tokens.size() == 0");
-        
+        if (tokens.size() == 0)
+            throw std::runtime_error("tokens.size() == 0");
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "void parse_options(int argc, char *argv[]) " << e.what() << '\n';
+        exit(-1);
+    }
+
+    try
+    {
+        _get_help(tokens);
+        _get_expresion(tokens);
+        _get_multifile(tokens);
+        _get_filenames(tokens);
+        _get_color(tokens);
+        _get_no_line_number(tokens);
     }
     catch(const std::exception& e)
     {
         std::cerr << "void parse_options(int argc, char *argv[]) " << e.what() << '\n';
-        exit(0);
     }
     
 
-    _get_help(tokens);
-    _get_expresion(tokens);
-    _get_filename(tokens);
-    _get_color(tokens);
-    _get_no_line_number(tokens);
 
 }
 
@@ -202,9 +258,9 @@ std::string get_expresion()
     return p_options.expresion;
 }
 
-std::string get_filename()
+std::vector<std::string> get_filenames()
 {
-    return p_options.filename;
+    return p_options.filenames;
 }
 
 bool get_no_line_number()
